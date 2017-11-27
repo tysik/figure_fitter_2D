@@ -10,44 +10,44 @@ using namespace figfit;
 
 const int N = 100;
 const double mu = 0.0;
-const double sigma2 = 1.0;
+const double var = 0.01;
 
 default_random_engine random_engine;
-normal_distribution<double> distribution(mu, sigma2);
+normal_distribution<double> distribution(mu, var);
 
 auto roll = [&](){ return distribution(random_engine); };
 
 int main()
 {
-  double A = 1.0;
-  double B = -1.0;
-  double C = -1.0;
+  Point first_point(0.0, 1.0);
+  Point last_point(1.0, 2.0);
+  Line line(first_point, last_point);
 
-  cout << "Preparing random pointset" << endl;
-  cout << "Original line: " << Line(A, B, C) << endl;
-  cout << "Original distance variance: " << sqr(sigma2) + sqr(sigma2) << endl;
+  cout << "Preparing random pointset for line created from\n";
+  cout << "points: " << first_point << " and " << last_point << endl;
+  cout << "Original line: " << line << endl;
 
   vector<Point> point_set;
   for (size_t i = 0; i < N; ++i)
   {
-    double x = double(i - N / 2) / N;
-    double y = -(A * x + C) / B;
+    double x_coord = (double(i) - N / 2.0);
 
-    point_set.push_back(Point(x + roll(), y + roll()));
+    Point line_point = line.createPointFromX(x_coord);
+    Point random_noise(roll(), roll());
+
+    point_set.push_back(line_point + random_noise);
   }
-
-  cout << "--- " << endl;
 
   try
   {
     Fitter fitter(point_set);
-
-    Line line;
+    Line fitted_line;
     double variance;
-    fitter.fitLine(line, variance);
 
     cout << "Fitting line" << endl;
-    cout << "Obtained line: " << line << endl;
+    fitter.fitLine(fitted_line, variance);
+
+    cout << "Obtained line: " << fitted_line << endl;
     cout << "Obtained distance variance: " << variance << endl;
   }
   catch (const exception &e)

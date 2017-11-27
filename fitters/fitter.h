@@ -5,6 +5,7 @@
 #include <stdexcept>
 
 #include "../figures/point.h"
+#include "../figures/line.h"
 
 namespace figfit
 {
@@ -12,39 +13,35 @@ namespace figfit
 class Fitter
 {
 public:
-  Fitter() : N_(0) {}
-
-  Fitter(const std::vector<Point> &points) :
-    points_(points),
-    N_(points.size())
+  explicit Fitter(const std::vector<Point> &points) :
+    N_(points.size()),
+    x_coords_(points.size()),
+    y_coords_(points.size())
   {
-    x_coords_.set_size(N_);
-    y_coords_.set_size(N_);
-
-    for (size_t i = 0; i < N_; ++i)
-    {
+    for (size_t i = 0; i < N_; ++i) {
       x_coords_(i) = points[i].x;
       y_coords_(i) = points[i].y;
     }
   }
 
-  void fitPoint(Point &point, double &variance);
-//  void fitLine(Line &line, double &variance);
+  void fitPoint(Point &p);
+  void fitPoint(Point &p, double &variance);
+
+  void fitLine(Line &l);
+  void fitLine(Line &l, double &variance);
+
 //  void fitSegment(Segment &segment, double &variance);
 //  void fitCircle(Circle &circle, double &variance);
 //  void fitArc(Arc &arc, double &variance);
 
 private:
   size_t N_;
-  std::vector<Point> points_;
-
   arma::vec x_coords_;
   arma::vec y_coords_;
 };
 
 
-void Fitter::fitPoint(Point &point, double &variance)
-{
+void Fitter::fitPoint(Point &p) {
   if (N_ < 1)
     throw std::logic_error("Error while fitting point. There must be at least"
                              " one point in the set.");
@@ -52,44 +49,49 @@ void Fitter::fitPoint(Point &point, double &variance)
   double mean_x = mean(x_coords_);
   double mean_y = mean(y_coords_);
 
-  point = Point(mean_x, mean_y);
+  p = Point(mean_x, mean_y);
+}
+
+void Fitter::fitPoint(Point &p, double &variance) {
+  fitPoint(p);
 
   double var = 0.0;
   for (size_t i = 0; i < N_; ++i)
-    var += point.distanceSquaredTo(Point(x_coords_(i), y_coords_(i)));
+    var += p.distanceSquaredTo(Point(x_coords_(i), y_coords_(i)));
   variance = var / N_;
 }
 
+//
+// WARNING: Badly fits lines through 0.0!
+//
+void Fitter::fitLine(Line &l) {
+  if (N_ < 2)
+    throw std::logic_error("Error while fitting line. There must be at least "
+                             "two points in the set.");
 
-//void Fitter::fitLine(Line &line, double &variance)
-//{
-//  if (N_ < 2)
-//    throw std::logic_error("Error while fitting line. There must be at least "
-//                             "two points in the set.");
+  arma::mat input  = arma::mat(N_, 2).zeros();  // [x_i, y_i]
+  arma::vec output = arma::vec(N_).ones();      // [-C]
+  arma::vec params = arma::vec(2).zeros();      // [A ; B]
 
-//  arma::mat input  = arma::mat(N_, 2).zeros();  // [x_i, y_i]
-//  arma::vec output = arma::vec(N_).ones();      // [-C]
-//  arma::vec params = arma::vec(2).zeros();      // [A ; B]
+  input.col(0) = x_coords_;
+  input.col(1) = y_coords_;
 
-////  input.insert_cols(0, trans(x_coords_));
-////  input.insert_cols(1, trans(y_coords_));
-//  input.col(0) = trans(x_coords_);
-//  input.col(1) = trans(y_coords_);
+  params = arma::pinv(input) * output;
 
-//  try
-//  {
-//    params = arma::pinv(input) * output;
-//  }
-//  catch (const std::exception &e)
-//  {
-//    throw std::runtime_error(e.what());
-//  }
+  if (params(0) == 0 && params(1) == 0)
+    throw std::runtime_error("Error while fitting line");
 
-//  if (params(0) == 0 && params(1) == 0)
-//    throw std::runtime_error("Error while fitting line");
+  l = Line(params(0), params(1), -1.0);
+}
 
-//  line = Line(params(0), params(1), -1.0);
-//}
+void Fitter::fitLine(Line &l, double &variance) {
+  fitLine(l);
+
+  double var = 0.0;
+  for (size_t i = 0; i < N_; ++i)
+    var += l.distanceSquaredTo(Point(x_coords_(i), y_coords_(i)));
+  variance = var / N_;
+}
 
 
 //Segment Fitter::fitSegment()

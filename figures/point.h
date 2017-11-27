@@ -16,23 +16,22 @@ public:
     Vec(p.x, p.y)
   {}
 
+  Point(const Vec &v) :
+    Vec(v.x, v.y)
+  {}
+
   virtual Vec normalTo(const Point &p) const {
     Vec n = p - *this;
     n.normalize();
     return n;
   }
 
-  virtual double distanceSquaredTo(const Point &point) const {
-    Vec p = point - *this;
-    return p.lengthSquared();
+  virtual double distanceSquaredTo(const Point &p) const {
+    return (p - *this).lengthSquared();
   }
 
-  virtual double circumference() const {
-    return 0.0;
-  }
-
-  virtual double area() const {
-    return 0.0;
+  virtual double distanceTo(const Point &p) const {
+    return sqrt(distanceSquaredTo(p));
   }
 };
 

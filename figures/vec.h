@@ -9,6 +9,9 @@ namespace figfit
 
 struct Vec
 {
+  double x;
+  double y;
+
   Vec(double x = 0.0, double y = 0.0) :
     x(x), y(y)
   {}
@@ -17,6 +20,9 @@ struct Vec
     x(v.x), y(v.y)
   {}
 
+  //
+  // Custom functions
+  //
   double lengthSquared() const {
     return pow(x, 2.0) + pow(y, 2.0);
   }
@@ -37,8 +43,16 @@ struct Vec
     return x * v.x + y * v.y;
   }
 
+  friend double dot(const Vec &v1, const Vec &v2) {
+    return v1.dot(v2);
+  }
+
   double cross(const Vec &v) const {
     return x * v.y - y * v.x;
+  }
+
+  friend double cross(const Vec &v1, const Vec &v2) {
+    return v1.cross(v2);
   }
 
   void normalize() {
@@ -63,14 +77,9 @@ struct Vec
     return Vec(-y, x);
   }
 
-  Vec operator-() {
-    return Vec(-x, -y);
-  }
-
-  Vec operator+() {
-    return Vec( x,  y);
-  }
-
+  //
+  // Assignment operators
+  //
   Vec& operator=(const Vec &v) {
     if (this != &v) {
       x = v.x; y = v.y;
@@ -90,16 +99,31 @@ struct Vec
     return *this;
   }
 
-  friend double dot(const Vec &v1, const Vec &v2) {
-    return v1.x * v2.x + v1.y * v2.y;
+  Vec& operator*=(double d) {
+    x *= d;
+    y *= d;
+    return *this;
   }
 
-  friend Vec cross(const Vec &v1, const Vec &v2) {
-    return v1.x * v2.y - v1.y * v2.x;
+  Vec& operator/=(double d) {
+    x /= d;
+    y /= d;
+    return *this;
+  }
+
+  //
+  // Arithmetic operators
+  //
+  Vec operator+() const {
+    return Vec(x, y);
   }
 
   friend Vec operator+(const Vec &v1, const Vec &v2) {
     return Vec(v1.x + v2.x, v1.y + v2.y);
+  }
+
+  Vec operator-() const {
+    return Vec(-x, -y);
   }
 
   friend Vec operator-(const Vec &v1, const Vec &v2) {
@@ -111,47 +135,46 @@ struct Vec
   }
 
   friend Vec operator*(const Vec &v, const double d) {
-    return d * v;
+    return Vec(d * v.x, d * v.y);
   }
 
   friend Vec operator/(const Vec &v, const double d)  {
     return Vec(v.x / d, v.y / d);
   }
 
+  //
+  // Comparison operators
+  //
   friend bool operator==(const Vec &v1, const Vec &v2) {
     return (v1.x == v2.x && v1.y == v2.y);
   }
 
   friend bool operator!=(const Vec &v1, const Vec &v2) {
-    return !(v1 == v2);
+    return !operator==(v1, v2);
   }
 
   friend bool operator<(const Vec &v1, const Vec &v2) {
     return (v1.lengthSquared() < v2.lengthSquared());
   }
 
-  friend bool operator<= (const Vec &v1, const Vec &v2) {
-    return (v1.lengthSquared() <= v2.lengthSquared());
+  friend bool operator>(const Vec &v1, const Vec &v2) {
+    return operator<(v2, v1);
   }
 
-  friend bool operator>(const Vec &v1, const Vec &v2) {
-    return !(v1 <= v2);
+  friend bool operator<= (const Vec &v1, const Vec &v2) {
+    return !operator>(v1, v2);
   }
 
   friend bool operator>=(const Vec &v1, const Vec &v2) {
-    return !(v1 < v2);
+    return !operator<(v1, v2);
   }
 
-  friend bool operator!(const Vec &v) {
-    return (v.x == 0.0 && v.y == 0.0);
-  }
-
+  //
+  // Ostream operator
+  //
   friend std::ostream& operator<<(std::ostream &out, const Vec &v) {
     out << "(" << v.x << ", " << v.y << ")"; return out;
   }
-
-  double x;
-  double y;
 };
 
 } // end namespace figfit

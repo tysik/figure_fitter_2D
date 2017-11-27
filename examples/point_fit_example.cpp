@@ -8,44 +8,37 @@
 using namespace std;
 using namespace figfit;
 
-const int N = 100;            // Sample size
-const double mu = 0.0;        // Noise mean value
-const double std_dev = 0.5;   // Noise standard deviation
-const double mean_x = 2.5;    // Expected X value
-const double mean_y = -1.5;   // Expected Y value
+const int N = 100;
+const double mu = 0.0;
+const double var = 0.01;
 
 default_random_engine random_engine;
-normal_distribution<double> distribution(mu, pow(std_dev, 2.0));
+normal_distribution<double> distribution(mu, var);
 
-double roll_dice()
-{
-  return distribution(random_engine);
-}
-
-Point generate_point()
-{
-  return Point(mean_x + roll_dice(), mean_y + roll_dice());
-}
+auto roll = [&](){ return distribution(random_engine); };
 
 int main()
 {
-  cout << "Preparing random point set around original point: "
-       << Point(mean_x, mean_y) << endl;
+  Point point(2.5, -1.3);
+
+  cout << "Preparing random point set around original point: " << point << endl;
 
   vector<Point> point_set;
-  for (size_t i = 0; i < N; ++i)
-    point_set.push_back(generate_point());
+  for (size_t i = 0; i < N; ++i) {
+    Point random_noise(roll(), roll());
+    point_set.push_back(point + random_noise);
+  }
 
   try
   {
     cout << "Fitting point set from " << N << " samples" << endl;
 
     Fitter fitter(point_set);
-    Point point;
+    Point fitted_point;
     double variance;
-    fitter.fitPoint(point, variance);
+    fitter.fitPoint(fitted_point, variance);
 
-    cout << "Obtained point: " << point << endl;
+    cout << "Obtained point: " << fitted_point << endl;
     cout << "Obtained distance variance: " << variance << endl;
   }
   catch (const exception &e)
