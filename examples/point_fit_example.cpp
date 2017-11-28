@@ -3,7 +3,7 @@
 #include <random>
 
 #include "../figures/point.h"
-#include "../fitters/fitter.h"
+#include "../fitters/figure_fitter.h"
 
 using namespace std;
 using namespace figfit;
@@ -33,7 +33,7 @@ int main()
   {
     cout << "Fitting point from " << N << " samples" << endl;
 
-    Fitter fitter(point_set);
+    FigureFitter fitter(point_set);
     Point fitted_point;
     double variance;
     fitter.fitPoint(fitted_point, variance);

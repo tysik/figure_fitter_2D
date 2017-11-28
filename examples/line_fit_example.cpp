@@ -3,7 +3,7 @@
 #include <random>
 
 #include "../figures/line.h"
-#include "../fitters/fitter.h"
+#include "../fitters/figure_fitter.h"
 
 using namespace std;
 using namespace figfit;
@@ -40,7 +40,7 @@ int main()
 
   try
   {
-    Fitter fitter(point_set);
+    FigureFitter fitter(point_set);
     Line fitted_line;
     double variance;
 

@@ -8,13 +8,36 @@
 #include "../figures/line.h"
 #include "../figures/segment.h"
 
+/*! \mainpage Figure Fitters 2D
+ *
+ * figfit::Fitter
+ *
+ */
+
 namespace figfit
 {
 
-class Fitter
+/** \class FigureFitter figure_fitter.h
+ * \brief Class containing general fitting functionalities
+ *
+ * The class acts as a container for the point set, from which figures such as
+ * point, line, line segment, circle or arc can be fitted.
+ *
+ * The class exploits Armadillo library for matrix operations and can throw any
+ * of its exceptions (cf. www.arma.sourceforge.net).
+*/
+class FigureFitter
 {
 public:
-  explicit Fitter(const std::vector<Point> &points) :
+  /** \brief Constructor with given point set
+   *
+   * Copies x and y coordinates of the given points into appropriate arma::vec
+   * objects and sets the size of the sample. This is the only constructor
+   * provided.
+   *
+   * \param points is the vector containing figfig::Point objects
+  */
+  explicit FigureFitter(const std::vector<Point> &points) :
     N_(points.size()),
     x_coords_(points.size()),
     y_coords_(points.size())
@@ -44,7 +67,7 @@ private:
 };
 
 
-void Fitter::fitPoint(Point &p) {
+void FigureFitter::fitPoint(Point &p) {
   if (N_ < 1)
     throw std::logic_error("Error while fitting point. There must be at least"
                              " one point in the set.");
@@ -55,7 +78,7 @@ void Fitter::fitPoint(Point &p) {
   p = Point(mean_x, mean_y);
 }
 
-void Fitter::fitPoint(Point &p, double &variance) {
+void FigureFitter::fitPoint(Point &p, double &variance) {
   fitPoint(p);
 
   double var = 0.0;
@@ -67,7 +90,7 @@ void Fitter::fitPoint(Point &p, double &variance) {
 //
 // WARNING: Badly fits lines through 0,0!
 //
-void Fitter::fitLine(Line &l) {
+void FigureFitter::fitLine(Line &l) {
   if (N_ < 2)
     throw std::logic_error("Error while fitting line. There must be at least "
                              "two points in the set.");
@@ -87,7 +110,7 @@ void Fitter::fitLine(Line &l) {
   l = Line(params(0), params(1), -1.0);
 }
 
-void Fitter::fitLine(Line &l, double &variance) {
+void FigureFitter::fitLine(Line &l, double &variance) {
   fitLine(l);
 
   double var = 0.0;
@@ -97,7 +120,7 @@ void Fitter::fitLine(Line &l, double &variance) {
 }
 
 
-void Fitter::fitSegment(Segment &s) {
+void FigureFitter::fitSegment(Segment &s) {
   Line line;
   fitLine(line);
 
@@ -110,7 +133,7 @@ void Fitter::fitSegment(Segment &s) {
   s = Segment(first_point, second_point);
 }
 
-void Fitter::fitSegment(Segment &s, double &variance) {
+void FigureFitter::fitSegment(Segment &s, double &variance) {
   Line line;
   fitLine(line, variance);
 

@@ -3,7 +3,7 @@
 #include <random>
 
 #include "../figures/segment.h"
-#include "../fitters/fitter.h"
+#include "../fitters/figure_fitter.h"
 
 using namespace std;
 using namespace figfit;
@@ -39,7 +39,7 @@ int main()
 
   try
   {
-    Fitter fitter(point_set);
+    FigureFitter fitter(point_set);
     Segment fitted_segment;
     double variance;
 
