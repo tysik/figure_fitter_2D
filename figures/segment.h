@@ -1,43 +1,40 @@
-#ifndef SEGMENT_H
-#define SEGMENT_H
+#pragma once
 
-#include "Geometry/vec.h"
-#include "Geometry/shape.h"
+#include "../figures/line.h"
 
-#include <cassert>
+namespace figfit
+{
 
-class Segment : public Shape
+class Segment : public Line
 {
 public:
-  Segment(const Vec& p1 = Vec(), const Vec& p2 = Vec(1.0f, 0.0f), Vec* origin = nullptr)
-    : Shape(origin), p1_(p1), p2_(p2) {
-    assert(p1_ != p2_);
-  }
+  Segment() :
+    Line(1.0, 0.0, 0.0)
+  {}
 
-  Segment(const Segment& segment)
-    : Shape(), p1_(segment.first_point()), p2_(segment.last_point()) {
-    origin_ = new Vec(segment.origin());
-  }
+  Segment(const Point &p1, const Point &p2):
+    Line(p1, p2),
+    first_point_(p1),
+    second_point_(p2)
+  {}
 
   /*
    * If the point's projection on segment lays outside
    * the normal is obtained from the edge point.
    */
-  virtual Vec getNormal(const Vec& point) const {
-    Vec p = point - origin();
+  virtual Vec normalTo(const Point &p) const {
+    Vec a = second_point_ - first_point_;
+    Vec b = p - first_point_;
+    Vec c = p - second_point_;
 
-    Vec a = p2_ - p1_;
-    Vec b = p - p1_;
-    Vec c = p - p2_;
+    double t = a.dot(b) / a.lengthSquared();
 
-    float t = a.dot(b) / a.lengthSquared();
-
-    if (t < 0.0f)
-      return b.normalize();
-    else if (t > 1.0f)
-      return c.normalize();
-
-    return signum(a.cross(b)) * a.perpendicular().normalize();
+    if (t < 0.0)
+      return b.normalized();
+    else if (t > 1.0)
+      return c.normalized();
+    else
+      return normalize(p - findProjectionOf(p));
   }
 
   /*
@@ -49,39 +46,46 @@ public:
    * computed. Projected point is obtained from equation:
    * p = p1 + t * (p2 - p1)
    */
-  virtual float getSmallestDistance(const Vec& point) const {
-    Vec p = point - origin();
 
-    Vec a = p2_ - p1_;
-    Vec b = p - p1_;
-    Vec c = p - p2_;
+  virtual double distanceSquaredTo(const Point &p) const {
+    Vec a = second_point_ - first_point_;
+    Vec b = p - first_point_;
+    Vec c = p - second_point_;
 
-    float t = a.dot(b) / a.lengthSquared();
+    double t = a.dot(b) / a.lengthSquared();
 
     if (t < 0.0)
-      return b.length();
+      return b.lengthSquared();
     else if (t > 1.0)
-      return c.length();
-
-    Vec projection = p1_ + t * a;
-    return (p - projection).length();
+      return c.lengthSquared();
+    else
+      return Line::distanceSquaredTo(p);
   }
 
-  virtual float getArea() const {
-    return 0.0f;
+  virtual double distanceTo(const Point &p) const {
+    return sqrt(distanceSquaredTo(p));
   }
 
-  float getLength() const {
-    return (p1_ - p2_).length();
+  double length() const {
+    return (first_point_ - second_point_).length();
   }
 
-  // Getters
-  Vec first_point() const { return p1_ + origin(); }
-  Vec last_point() const { return p2_ + origin(); }
+  Vec first_point() const {
+    return first_point_;
+  }
+
+  Vec second_point() const {
+    return second_point_;
+  }
+
+  friend std::ostream& operator<<(std::ostream &out, const Segment &s) {
+    out << "[" << s.first_point_ << ", " << s.second_point_ << "]";
+    return out;
+  }
 
 private:
-  Vec p1_;
-  Vec p2_;
+  Vec first_point_;
+  Vec second_point_;
 };
 
-#endif // SEGMENT_H
+} // end namespace figfit

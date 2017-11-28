@@ -6,6 +6,7 @@
 
 #include "../figures/point.h"
 #include "../figures/line.h"
+#include "../figures/segment.h"
 
 namespace figfit
 {
@@ -30,7 +31,9 @@ public:
   void fitLine(Line &l);
   void fitLine(Line &l, double &variance);
 
-//  void fitSegment(Segment &segment, double &variance);
+  void fitSegment(Segment &s);
+  void fitSegment(Segment &s, double &variance);
+
 //  void fitCircle(Circle &circle, double &variance);
 //  void fitArc(Arc &arc, double &variance);
 
@@ -62,7 +65,7 @@ void Fitter::fitPoint(Point &p, double &variance) {
 }
 
 //
-// WARNING: Badly fits lines through 0.0!
+// WARNING: Badly fits lines through 0,0!
 //
 void Fitter::fitLine(Line &l) {
   if (N_ < 2)
@@ -94,39 +97,32 @@ void Fitter::fitLine(Line &l, double &variance) {
 }
 
 
-//Segment Fitter::fitSegment()
-//{
-//  Line line;
+void Fitter::fitSegment(Segment &s) {
+  Line line;
+  fitLine(line);
 
-//  try
-//  {
-//    line = fitLine();
-//  }
-//  catch (const std::exception &e)
-//  {
-//    throw std::runtime_error(e.what());
-//  }
+  Point first_point(x_coords_(0), y_coords_(0));
+  Point second_point(x_coords_(N_ - 1), y_coords_(N_ - 1));
 
-//  // TODO: Check if the extreme points in the set are actually extreme!
-//  Point p1 = points_.front();
-//  Point p2 = points_.back();
+  first_point = line.findProjectionOf(first_point);
+  second_point = line.findProjectionOf(second_point);
 
-////  result.point_sets.push_back(point_set);
+  s = Segment(first_point, second_point);
+}
 
-////  Point projected_p1, projected_p2;
+void Fitter::fitSegment(Segment &s, double &variance) {
+  Line line;
+  fitLine(line, variance);
 
-////  projected_p1.x = ( B * B * p1.x - A * B * p1.y - A * C) / D;
-////  projected_p1.y = (-A * B * p1.x + A * A * p1.y - B * C) / D;
+  Point first_point(x_coords_(0), y_coords_(0));
+  Point second_point(x_coords_(N_ - 1), y_coords_(N_ - 1));
 
-////  projected_p2.x = ( B * B * p2.x - A * B * p2.y - A * C) / D;
-////  projected_p2.y = (-A * B * p2.x + A * A * p2.y - B * C) / D;
+  first_point = line.findProjectionOf(first_point);
+  second_point = line.findProjectionOf(second_point);
 
-////  result.first_ = projected_p1;
-////  result.last_ = projected_p2;
+  s = Segment(first_point, second_point);
+}
 
-//  Segment result;
-//  return result;
-//}
 
 ///**
 // * Returns a total best fit approximation of

@@ -13,5 +13,8 @@ target_link_libraries(point_fit_example ${ARMADILLO_LIBRARIES})
 add_executable(line_fit_example examples/line_fit_example.cpp figures/line.h fitters/fitter.h)
 target_link_libraries(line_fit_example ${ARMADILLO_LIBRARIES})
 
+add_executable(segment_fit_example examples/segment_fit_example.cpp figures/segment.h fitters/fitter.h)
+target_link_libraries(segment_fit_example ${ARMADILLO_LIBRARIES})
+
 #add_executable(circle_fit_example circle_fit_example.cpp figures.h fitter.h)
 #target_link_libraries(circle_fit_example ${ARMADILLO_LIBRARIES})

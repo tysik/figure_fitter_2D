@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <random>
 
-#include "../figures/line.h"
+#include "../figures/segment.h"
 #include "../fitters/fitter.h"
 
 using namespace std;
@@ -19,20 +19,19 @@ auto roll = [&](){ return distribution(random_engine); };
 
 int main()
 {
-  Point first_point(0.0, 1.0);
-  Point second_point(1.0, 1.0);
-  Line line(first_point, second_point);
+  Point first_point(-2.0, 1.0);
+  Point second_point(3.0, 7.0);
+  Segment segment(first_point, second_point);
 
-  cout << "Preparing random pointset for line created from\n";
-  cout << "points: " << first_point << " and " << second_point << endl;
-  cout << "Original line: " << line << endl;
+  cout << "Preparing random pointset for segment" << endl;
+  cout << "Original segment: " << segment << endl;
 
   vector<Point> point_set;
   for (size_t i = 0; i < N; ++i)
   {
-    double x_coord = (double(i) - N / 2.0);
+    double x_coord = i * (second_point.x - first_point.x) / N + first_point.x;
 
-    Point line_point = line.createPointFromX(x_coord);
+    Point line_point = segment.createPointFromX(x_coord);
     Point random_noise(roll(), roll());
 
     point_set.push_back(line_point + random_noise);
@@ -41,13 +40,13 @@ int main()
   try
   {
     Fitter fitter(point_set);
-    Line fitted_line;
+    Segment fitted_segment;
     double variance;
 
-    cout << "Fitting line from " << N << " samples" << endl;
-    fitter.fitLine(fitted_line, variance);
+    cout << "Fitting segment from " << N << " samples" << endl;
+    fitter.fitSegment(fitted_segment, variance);
 
-    cout << "Obtained line: " << fitted_line << endl;
+    cout << "Obtained segment: " << fitted_segment << endl;
     cout << "Obtained distance variance: " << variance << endl;
   }
   catch (const exception &e)

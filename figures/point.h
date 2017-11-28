@@ -12,18 +12,12 @@ public:
     Vec(x, y)
   {}
 
-  Point(const Point &p) :
-    Vec(p.x, p.y)
-  {}
-
   Point(const Vec &v) :
-    Vec(v.x, v.y)
+    Vec(v)
   {}
 
   virtual Vec normalTo(const Point &p) const {
-    Vec n = p - *this;
-    n.normalize();
-    return n;
+    return normalize(p - *this);
   }
 
   virtual double distanceSquaredTo(const Point &p) const {

@@ -31,7 +31,7 @@ int main()
 
   try
   {
-    cout << "Fitting point set from " << N << " samples" << endl;
+    cout << "Fitting point from " << N << " samples" << endl;
 
     Fitter fitter(point_set);
     Point fitted_point;

@@ -24,7 +24,7 @@ struct Vec
   // Custom functions
   //
   double lengthSquared() const {
-    return pow(x, 2.0) + pow(y, 2.0);
+    return x * x + y * y;
   }
 
   double length() const {
@@ -43,26 +43,26 @@ struct Vec
     return x * v.x + y * v.y;
   }
 
-  friend double dot(const Vec &v1, const Vec &v2) {
-    return v1.dot(v2);
-  }
-
   double cross(const Vec &v) const {
     return x * v.y - y * v.x;
+  }
+
+  Vec normalized() const {
+    return *this / length();
+  }
+
+  friend double dot(const Vec &v1, const Vec &v2) {
+    return v1.dot(v2);
   }
 
   friend double cross(const Vec &v1, const Vec &v2) {
     return v1.cross(v2);
   }
 
-  void normalize() {
-    double L = length();
-
-    if (L == 0.0)
-      throw std::logic_error("Cannot normalize vector of length 0");
-
-    x /= L, y /= L;
+  friend Vec normalize(const Vec &v) {
+    return v / v.length();
   }
+
 
   /*
    * Returns a vector as if it was reflected from the surface

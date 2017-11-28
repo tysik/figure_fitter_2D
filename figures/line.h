@@ -15,7 +15,7 @@ public:
   Line(double A = 1.0, double B = 0.0, double C = 0.0) :
     A_(A), B_(B), C_(C)
   {
-    normalize();
+    normalize_coefficients();
   }
 
   Line(const Point &p1, const Point &p2) {
@@ -37,7 +37,7 @@ public:
       C_ = -p1.x;
     }
 
-    normalize();
+    normalize_coefficients();
   }
 
   Line(const Line &l) :
@@ -45,13 +45,11 @@ public:
   {}
 
   virtual Vec normalTo(const Point &p) const {
-    // TODO: find direction to point
-    return Vec(A_, B_);
+    return normalize(p - findProjectionOf(p));
   }
 
   virtual double distanceSquaredTo(const Point &p) const {
-    Point projected = findProjectionOf(p);
-    return (p - projected).lengthSquared();
+    return (p - findProjectionOf(p)).lengthSquared();
   }
 
   virtual double distanceTo(const Point &p) const {
@@ -60,14 +58,14 @@ public:
 
   Point createPointFromX(double x_coord) const {
     if (B_ == 0.0)
-      throw std::logic_error("Cannot create point on segment");
+      throw std::logic_error("Cannot create point on vertical line");
 
     return Point(x_coord, -(A_ * x_coord + C_) / B_);
   }
 
   Point createPointFromY(double y_coord) const {
     if (A_ == 0.0)
-      throw std::logic_error("Cannot create point on segment");
+      throw std::logic_error("Cannot create point on horizontal line");
 
     return Point(-(B_ * y_coord + C_) / A_, y_coord);
   }
@@ -103,7 +101,7 @@ public:
   }
 
 private:
-  void normalize() {
+  void normalize_coefficients() {
     double denominator = A_ * A_ + B_ * B_;
     if (denominator == 0.0)
       throw std::logic_error("Could not normalize line segment: A^2 + B^2 == 0");
