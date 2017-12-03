@@ -35,6 +35,38 @@ public:
     radius_(radius)
   { }
 
+  /**
+   * @brief Construction from three points
+   *
+   * The points cannot lay on the same line.
+   *
+   * @param p1 is the first point
+   * @param p2 is the second point
+   * @param p3 is the third point
+   *
+   * @throw std::logic_error if the points are located on the same line
+   */
+  Circle(const Point &p1, const Point &p2, const Point &p3) {
+    double denominator = 2.0 * (p1.x * (p2.y - p3.y) -
+                                p1.y * (p2.x - p3.x) +
+                                p2.x * p3.y - p3.x * p2.y);
+
+    if (denominator == 0.0)
+      throw std::logic_error("Cannot create circle from three points lying on "
+                             "the same line.");
+
+    double x_coord = (p1.lengthSquared() * (p2.y - p3.y) +
+                      p2.lengthSquared() * (p3.y - p1.y) +
+                      p3.lengthSquared() * (p1.y - p2.y)) / denominator;
+
+    double y_coord = (p1.lengthSquared() * (p3.x - p2.x) +
+                      p2.lengthSquared() * (p1.x - p3.x) +
+                      p3.lengthSquared() * (p2.x - p1.x)) / denominator;
+
+    center_ = Point(x_coord, y_coord);
+    radius_ = (p1 - center_).length();
+  }
+
   //
   // Inherited methods
   //
