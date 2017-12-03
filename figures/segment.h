@@ -21,7 +21,7 @@ public:
   // Constructors
   //
   /**
-   * @brief Construction from points
+   * @brief Construction from two points
    *
    * Note that default segment is constructed from points (0,0) and (1,0).
    *
