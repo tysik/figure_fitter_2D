@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../figures/line.h"
+#include "../figures/circle.h"
 
 namespace figfit
 {
@@ -13,7 +13,7 @@ namespace figfit
  * Segment is a special case of finite Line and therefore is a Figure. It is
  * defined by general equation of line (Ax + By + C = 0) and two extreme points.
  */
-class Segment : public Line
+class Arc : public Circle
 {
 public:
 
@@ -30,8 +30,8 @@ public:
    *
    * @throw std::logic_error if p1 = p2
    */
-  Segment(const Point &p1 = Point(), const Point &p2 = Point(1.0, 0.0)):
-    Line(p1, p2),
+  Arc(const Point &p1 = Point(), const Point &p2 = Point(1.0, 0.0)):
+    Circle(p1, 1),
     first_point_(p1),
     second_point_(p2)
   {}
@@ -66,7 +66,7 @@ public:
     else if (t > 1.0)
       return c.lengthSquared();
     else
-      return Line::distanceSquaredTo(p);
+      return Circle::distanceSquaredTo(p);
   }
 
   virtual double distanceTo(const Point &p) const {
@@ -85,7 +85,7 @@ public:
     else if (t > 1.0)
       return second_point_.findProjectionOf(p);
     else
-      return Line::findProjectionOf(p);
+      return Circle::findProjectionOf(p);
   }
 
   //
@@ -121,8 +121,8 @@ public:
   //
   // Ostream operator
   //
-  friend std::ostream& operator<<(std::ostream &out, const Segment &s) {
-    out << "[" << s.first_point_ << ", " << s.second_point_ << "]";
+  friend std::ostream& operator<<(std::ostream &out, const Arc &a) {
+    out << "[" << a.first_point_ << ", " << a.second_point_ << "]";
     return out;
   }
 

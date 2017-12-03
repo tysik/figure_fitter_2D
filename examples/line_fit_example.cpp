@@ -20,7 +20,7 @@ auto roll = [&](){ return distribution(random_engine); };
 int main()
 {
   Point first_point(0.0, 1.0);
-  Point second_point(1.0, 1.0);
+  Point second_point(1.0, 2.0);
   Line line(first_point, second_point);
 
   cout << "Preparing random pointset for line created from\n";
