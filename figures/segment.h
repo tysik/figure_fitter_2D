@@ -10,11 +10,10 @@ namespace figfit
  *
  * @brief The Segment class
  *
- * Segment is a special case of a finite Line and therefore is a Figure. It is
- * defined by general equation of line (Ax + By + C = 0) and two extreme points.
- * The order of points does matter because for the parametric representation of
- * the segment it is assumed that the parameter runs from the first point to the
- * second point.
+ * Segment is a figure created upon a supporting line. It can be described with
+ * two points: start-point and end-point. The order of points does matter
+ * because for the parametric representation of the segment it is assumed that
+ * the parameter runs from the first point to the second point.
  */
 class Segment : public Line
 {
@@ -38,15 +37,15 @@ public:
    * Note that default segment is constructed from points (0,0) and (1,0). The
    * order of provided points does matter.
    *
-   * @param p1 is the first point
-   * @param p2 is the second point
+   * @param start is a start-point of the segment
+   * @param start is a end-point of the segment
    *
    * @throw std::logic_error if p1 = p2
    */
-  Segment(const Point& p1 = Point(), const Point& p2 = Point(1.0, 0.0)) :
-    Line(p1, p2),
-    first_point_(p1),
-    second_point_(p2)
+  Segment(const Point& start = Point(), const Point& end = Point(1.0, 0.0)) :
+    Line(start, end),
+    start_point_(start),
+    end_point_(end)
   {}
 
   //
@@ -63,9 +62,9 @@ public:
     double t = parametricRepresentation(p);
 
     if (t < 0.0)
-      return (p - first_point_).normalized();
+      return (p - start_point_).normalized();
     else if (t > 1.0)
-      return (p - second_point_).normalized();
+      return (p - end_point_).normalized();
     else
       return Line::normalTo(p);
   }
@@ -81,9 +80,9 @@ public:
     double t = parametricRepresentation(p);
 
     if (t < 0.0)
-      return (p - first_point_).lengthSquared();
+      return (p - start_point_).lengthSquared();
     else if (t > 1.0)
-      return (p - second_point_).lengthSquared();
+      return (p - end_point_).lengthSquared();
     else
       return Line::distanceSquaredTo(p);
   }
@@ -108,9 +107,9 @@ public:
     double t = this->parametricRepresentation(p);
 
     if (t < 0.0)
-      return first_point_;
+      return start_point_;
     else if (t > 1.0)
-      return second_point_;
+      return end_point_;
     else
       return Line::findProjectionOf(p);
   }
@@ -136,13 +135,15 @@ public:
    * @throw std::logic_error if length of this segment is zero
    */
   double parametricRepresentation(const Point& p) const {
-    Vec a = second_point_ - first_point_;
-    Vec b = p - first_point_;
-
-    double length_squared = this->lengthSquared();
+    // TODO: Why throwing? In such case start = end -> return 0.0 - min(double)
+    // or 1.0 + min(double);
+    double length_squared = lengthSquared();
     if (length_squared == 0.0)
       throw std::logic_error("Could not find parametric representation for "
                              "zero-length segment");
+
+    Vec a = end_point_ - start_point_;
+    Vec b = p - start_point_;
 
     return a.dot(b) / length_squared;
   }
@@ -153,7 +154,7 @@ public:
    * @return squared length of this segment
    */
   double lengthSquared() const {
-    return (first_point_ - second_point_).lengthSquared();
+    return (start_point_ - end_point_).lengthSquared();
   }
 
   /**
@@ -162,7 +163,7 @@ public:
    * @return length of this segment
    */
   double length() const {
-    return (first_point_ - second_point_).length();
+    return (start_point_ - end_point_).length();
   }
 
   /**
@@ -170,8 +171,8 @@ public:
    *
    * @return first point
    */
-  Vec firstPoint() const {
-    return first_point_;
+  Point startPoint() const {
+    return start_point_;
   }
 
   /**
@@ -179,8 +180,8 @@ public:
    *
    * @return second point
    */
-  Vec secondPoint() const {
-    return second_point_;
+  Point endPoint() const {
+    return end_point_;
   }
 
   //
@@ -188,13 +189,14 @@ public:
   //
 
   friend std::ostream& operator<<(std::ostream& out, const Segment& s) {
-    out << "[" << s.first_point_ << ", " << s.second_point_ << "]";
+    out << "[" << s.start_point_ << ", " << s.end_point_ << "]";
     return out;
   }
 
 private:
-  Point first_point_;   /**< @brief First point of the segment */
-  Point second_point_;  /**< @brief Second point of the segment */
+
+  Point start_point_;   /**< @brief Beginning of the segment */
+  Point end_point_;     /**< @brief End of the segment */
 };
 
 } // end namespace figfit

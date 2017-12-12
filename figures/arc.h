@@ -10,10 +10,9 @@ namespace figfit
  *
  * @brief The Arc class
  *
- * Arc is a special case of non-closed circle and therefore is a figure. It is
- * defined by two points lying on the circle. Depending on the order of
- * providing points, the arc is defined to be a section of the circle or its
- * negation.
+ * Arc is a figure created upon a supporting circle. It is defined by two points
+ * laying on this circle, which can be represented in a parametric form by
+ * angles start and stop.
  */
 class Arc : public Circle
 {
@@ -31,31 +30,45 @@ public:
   Arc(Arc&& rhs) = default;
   Arc& operator=(Arc&& rhs) = default;
 
-  Arc(const Point& center, double radius, double start, double stop) :
+  /**
+   * @brief Construction from center, radius and start/stop angles (default)
+   *
+   * The arc is created upon circle of center and radius. It is spread from
+   * angle start to angle stop in a counter-clokwise manner. The angles are
+   * provided in radians in range [-pi;pi].
+   *
+   * Note that the default values of center is (0,0), radius is 1, start angle
+   * is 0 rad and stop angle is 1 rad.
+   *
+   * @param center is a center point of the supporting circle
+   * @param radius is a radius of the supporting circle
+   * @param start is a start-point angle in radians
+   * @param stop is an end-point angle in radians
+   */
+  Arc(const Point& center = Point(), double radius = 1.0,
+      double start = 0.0, double stop = 1.0) :
     Circle(center, radius),
-    start_(start),
-    stop_(stop)
-  { }
+    start_(atan2(sin(start), cos(start))),
+    end_(atan2(sin(stop), cos(stop)))
+  {}
 
   /**
-   * @brief Construction from three points (default)
+   * @brief Construction from three points
    *
-   * Note that the default values of points are p1 = (1,0), p2 = (0,1),
-   * p3 = (sqrt(2)/2, sqrt(2)/2).
-   *
-   * @param p1 is the first point
-   * @param p2 is the second point
-   * @param paux is the auxiliary point for circle construction
+   * @param start is a start-point of the arc
+   * @param stop is an end-point of the arc
+   * @param paux is an auxiliary point for construction of supporting circle
    *
    * @throw std::logic_error if the points lay on the same line
    */
-  Arc(const Point& p1,
-      const Point& p2,
-      const Point& p_aux):
-    Circle(p1, p2, p_aux),
-    first_point_(p1),
-    second_point_(p2)
-  {}
+  Arc(const Point& start,
+      const Point& stop,
+      const Point& aux):
+    Circle(start, stop, aux)
+  {
+    start_ = atan2(start.y - center_.y, start.x - center_.x);
+    end_ = atan2(stop.y - center_.y, stop.x - center_.x);
+  }
 
   //
   // Inherited methods
@@ -100,86 +113,135 @@ public:
   //
 
   /**
-   * @brief Get parametric representation of a point
+   * @brief Get parametric representation of a point on this arc
    *
-   * Position along the arc can be parametrized by a single value t so that
-   * when p coincides with the first point of the arc then t is equal to
-   * zero and when p coincides with the second point of the arc then t is
-   * equal to one. Parameter t can be less than zero or greater than 1 if the
-   * projeciton of point onto the arc circle falls behind its limits
+   * Position along the arc can be parametrized by a single value theta so that
+   * when p coincides with the start-point of the arc then theta is equal to
+   * zero and when p coincides with the end-point of the arc then theta is
+   * equal to one. Parameter theta can be less than zero or greater than 1 if
+   * the projeciton of point onto the supporting circle falls behind arcs
+   * limits.
    *
-   * @param p is a given point; projection of p onto arc circle is taken
-   * for calculations of t
+   * @param p is a given point; projection of p onto supporting circle is taken
+   * for calculations of theta
    *
-   * @return parameter t
+   * @return parameter theta
    *
-   * @throw std::logic_error if length of this arc is zero or the point is
-   * located at the center of arc circle
+   * @throw std::logic_error if point p is located at the center of arc circle
    */
   double parametricRepresentation(const Point& p) const {
-    double phi_1 = atan2(first_point_.y - center_.y,
-                         first_point_.x - center_.x);
-    double phi_2 = atan2(second_point_.y - center_.y,
-                         second_point_.x - center_.x);
-
-    double theta = phi_2 - phi_1;
+    double length = this->length();
+    if (length == 0.0)
+      throw std::logic_error("Could not find parametric representation for "
+                             "zero-length arc");
 
     Point p_proj = Circle::findProjectionOf(p);
-    double phi_p = atan2(p_proj.y - center_.y,
-                         p_proj.x - center_.x);
+    double phi = atan2(p_proj.y - center_.y, p_proj.x - center_.x);
 
-    Vec a = second_point_ - first_point_;
-    Vec b = p - first_point_;
+    double a = end_ - start_;
+    double b = phi - start_;
 
-//    double length_squared = this->lengthSquared();
-//    if (length_squared == 0.0)
-//      throw std::logic_error("Could not find parametric representation for "
-//                             "zero-length segment");
+    double midway = (a >= 0.0 ? a : a + M_PI) / 2.0;
+    double opposite_midway = atan2(sin(M_PI + midway), cos(M_PI + midway));
+
+    if (a >= 0.0)
+      return b / a;
+    else
+      return b / (a + M_PI);
 
     return 1;
   }
 
 
+//  double parametricRepresentation(double phi) const {
+//    double midway = (a >= 0.0 ? a : a + M_PI) / 2.0;
+//    double opposite_midway = atan2(sin(M_PI + midway), cos(M_PI + midway));
+
+
+//    double a = end_ - start_;
+//    double b = phi - start_;
+
+
+//    if (a >= 0.0)
+//      return b / a;
+//    else
+//      return b / (a + M_PI);
+
+//    return 1;
+//  }
+
+
   /**
-   * @brief Squared length of arc
+   * @brief Get squared length of this arc
    *
-   * @return squared length of arc
+   * Note that calculating length of arc is faster than calculating its length
+   * squared.
+   *
+   * @return squared length of this arc
    */
   double lengthSquared() const {
-    return 0.0;
+    return pow(length(), 2.0);
   }
 
   /**
-   * @brief Length of arc
+   * @brief Get length of this arc
    *
-   * @return length of arc
+   * @return length of this arc
    */
   double length() const {
-    double phi_1 = atan2(first_point_.y - center_.y,
-                         first_point_.x - center_.x);
-    double phi_2 = atan2(second_point_.y - center_.y,
-                         second_point_.x - center_.x);
-    double theta = phi_2 - phi_1;
-
-    return radius_ * std::abs(theta) / (2.0 * M_PI);
+    double angle = end_ - start_;
+    return radius_ * (angle >= 0.0 ? angle : angle + 2.0 * M_PI);
   }
 
   /**
-   * @brief Get first point
+   * @brief Get start-point angle of this arc
    *
-   * @return first point
+   * @return start-point angle of this arc
    */
-  Vec firstPoint() const {
-    return first_point_;
+  double startAngle() const {
+    return start_;
   }
 
   /**
-   * @brief Get second point
+   * @brief Get end-point angle of this arc
    *
-   * @return second point
+   * @return end-point angle of this arc
    */
-  Vec secondPoint() const {
-    return second_point_;
+  double endAngle() const {
+    return end_;
+  }
+
+  /**
+   * @brief Get start-point of this arc
+   *
+   * @return start-point of this arc
+   */
+  Point startPoint() const {
+    return center_ + radius_ * Point(cos(start_), sin(start_));
+  }
+
+  /**
+   * @brief Get end-point of this arc
+   *
+   * @return end-point of this arc
+   */
+  Point endPoint() const {
+    return center_ + radius_ * Point(cos(start_), sin(start_));
+  }
+
+  /**
+   * @brief Get middle-point of this arc
+   *
+   * @return middle-point of this arc
+   */
+  Point midPoint() const {
+    if (length() == 0.0)
+      return startPoint();
+
+    Point p1 = startPoint() - center_;
+    Point p2 = endPoint() - center_;
+
+    return center_ + radius_ * normalize(p1 + p2);
   }
 
   //
@@ -187,18 +249,17 @@ public:
   //
 
   friend std::ostream& operator<<(std::ostream &out, const Arc &a) {
-    out << "[" << a.center_ << ", " << a.radius_
-        << a.first_point_   << ", " << a.second_point_ << "]";
+    out << "[" << a.center_ << ", " << a.radius_ << ", "
+        << "{" << a.start_ << ", " << a.end_ << "}]";
     return out;
   }
 
 private:
 
-  Point first_point_;   /**< @brief First point of the arc */
-  Point second_point_;  /**< @brief Second point of the arc */
+  // TODO: find out if the point-representation is better
 
-  double start_;
-  double stop_;
+  double start_;   /**< @brief Start-point angle */
+  double end_;     /**< @brief End-point angle */
 };
 
 } // end namespace figfit
