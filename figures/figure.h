@@ -17,6 +17,9 @@ class Point;
 class Figure
 {
 public:
+
+  Figure() = delete;
+
   /**
    * @brief Compute normal vector
    *

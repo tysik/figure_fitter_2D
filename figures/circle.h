@@ -24,15 +24,14 @@ public:
   /**
    * @brief Construction from point and radius
    *
-   * Provided radius must be greater than zero. Constructor does not check if
-   * this is true. Default radius is 1.
+   * Note that the default radius is 1.
    *
    * @param center is the central point of the circle
-   * @param radius is the radius of the circle
+   * @param radius is the radius of the circle (absolute value is taken)
    */
   Circle(const Point &center = Point(), double radius = 1.0) :
     center_(center),
-    radius_(radius)
+    radius_(fabs(radius))
   { }
 
   //
@@ -66,7 +65,7 @@ public:
    * @param p is the given point
    * @return true if p is inside this circle
    */
-  bool isEncircling(const Point &p) {
+  bool isEncircling(const Point &p) const {
     return pow(radius_, 2.0) >= (p - center_).lengthSquared();
   }
 
@@ -79,7 +78,7 @@ public:
    * @param c is the given circle
    * @return true if c is inside this circle
    */
-  bool isEncircling(const Circle &c) {
+  bool isEncircling(const Circle &c) const {
     return radius_ >= (c.center_ - center_).length() + c.radius_;
   }
 
