@@ -36,15 +36,20 @@ struct Vec
 
   /**
    * @brief Construction from copy
+   *
    * @param v is a rhs vector
    */
-  Vec(const Vec &v) :
+  Vec(const Vec& v) :
     x(v.x), y(v.y)
   {}
 
+  Vec(Vec&& v) = default;
+
   /**
    * @brief Squared length of vector
+   *
    * @return squared length of the vector
+   *
    * @sa length()
    */
   double lengthSquared() const {
@@ -53,7 +58,9 @@ struct Vec
 
   /**
    * @brief Length of vector
+   *
    * @return length of the vector
+   *
    * @sa lengthSquared()
    */
   double length() const {
@@ -67,6 +74,7 @@ struct Vec
    * frame, where x is abscissa and y is ordinate.
    *
    * @return orientation of the vector in radians, in range [-pi, pi]
+   *
    * @sa angleDeg()
    */
   double angle() const {
@@ -75,7 +83,9 @@ struct Vec
 
   /**
    * @brief Angle of vector in degrees
+   *
    * @return orientation of the vector in degrees, in range [-180, 180]
+   *
    * @sa angle()
    */
   double angleDeg() const {
@@ -84,10 +94,12 @@ struct Vec
 
   /**
    * @brief Dot product
+   *
    * @param v is another vector with which the dot product shall be computed
+   *
    * @return dot product of this vector and vector v
    */
-  double dot(const Vec &v) const {
+  double dot(const Vec& v) const {
     return x * v.x + y * v.y;
   }
 
@@ -99,19 +111,27 @@ struct Vec
    * only the resulting z coordinate is computed.
    *
    * @param v is another vector with which the cross product shall be computed
+   *
    * @return z coordinate of cross product of this vector and vector v
    */
-  double cross(const Vec &v) const {
+  double cross(const Vec& v) const {
     return x * v.y - y * v.x;
   }
 
   /**
    * @brief Normalized version of this vector
+   *
    * @return vector with the same orientation as this vector but with unit
    * length
+   *
+   * @throw std::logic_error if the length of the vector is zero
    */
   Vec normalized() const {
-    return *this / length();
+    double length = this->length();
+    if (length == 0.0)
+      throw std::logic_error("Cannot normalize a vector of length zero.");
+
+    return *this / length;
   }
 
   /**
@@ -121,10 +141,12 @@ struct Vec
    *
    * @param v1 is first vector
    * @param v2 is second vector
+   *
    * @return dot product of two vectors
+   *
    * @sa dot()
    */
-  friend double dot(const Vec &v1, const Vec &v2) {
+  friend double dot(const Vec& v1, const Vec& v2) {
     return v1.dot(v2);
   }
 
@@ -137,9 +159,10 @@ struct Vec
    * @param v2 is second vector
    *
    * @return z coordinate of cross product of two vectors
+   *
    * @sa cross()
    */
-  friend double cross(const Vec &v1, const Vec &v2) {
+  friend double cross(const Vec& v1, const Vec& v2) {
     return v1.cross(v2);
   }
 
@@ -151,10 +174,17 @@ struct Vec
    * @param v is a vector
    *
    * @return normalized version of provided vector
+   *
+   * @throw std::logic_error if the length of the vector is zero
+   *
    * @sa normalized()
    */
-  friend Vec normalize(const Vec &v) {
-    return v / v.length();
+  friend Vec normalize(const Vec& v) {
+    double length = v.length();
+    if (length == 0.0)
+      throw std::logic_error("Cannot normalize a vector of length zero.");
+
+    return v / length;
   }
 
   /**
@@ -168,7 +198,7 @@ struct Vec
    *
    * @return reflected vector
    */
-  Vec reflect(const Vec &normal) const {
+  Vec reflect(const Vec& normal) const {
     return *this - 2.0 * normal * (normal.dot(*this));
   }
 
@@ -187,20 +217,16 @@ struct Vec
   //
   // Assignment operators
   //
-  Vec& operator=(const Vec &v) {
-    if (this != &v) {
-      x = v.x; y = v.y;
-    }
-    return *this;
-  }
+  Vec& operator=(const Vec& v) = default;
+  Vec& operator=(Vec&& v) = default;
 
-  Vec& operator+=(const Vec &v) {
+  Vec& operator+=(const Vec& v) {
     x += v.x;
     y += v.y;
     return *this;
   }
 
-  Vec& operator-=(const Vec &v) {
+  Vec& operator-=(const Vec& v) {
     x -= v.x;
     y -= v.y;
     return *this;
@@ -225,7 +251,7 @@ struct Vec
     return Vec(x, y);
   }
 
-  friend Vec operator+(const Vec &v1, const Vec &v2) {
+  friend Vec operator+(const Vec& v1, const Vec& v2) {
     return Vec(v1.x + v2.x, v1.y + v2.y);
   }
 
@@ -233,53 +259,53 @@ struct Vec
     return Vec(-x, -y);
   }
 
-  friend Vec operator-(const Vec &v1, const Vec &v2) {
+  friend Vec operator-(const Vec& v1, const Vec& v2) {
     return Vec(v1.x - v2.x, v1.y - v2.y);
   }
 
-  friend Vec operator*(const double d, const Vec &v) {
+  friend Vec operator*(const double d, const Vec& v) {
     return Vec(d * v.x, d * v.y);
   }
 
-  friend Vec operator*(const Vec &v, const double d) {
+  friend Vec operator*(const Vec& v, const double d) {
     return Vec(d * v.x, d * v.y);
   }
 
-  friend Vec operator/(const Vec &v, const double d)  {
+  friend Vec operator/(const Vec& v, const double d)  {
     return Vec(v.x / d, v.y / d);
   }
 
   //
   // Comparison operators
   //
-  friend bool operator==(const Vec &v1, const Vec &v2) {
+  friend bool operator==(const Vec& v1, const Vec& v2) {
     return (v1.x == v2.x && v1.y == v2.y);
   }
 
-  friend bool operator!=(const Vec &v1, const Vec &v2) {
+  friend bool operator!=(const Vec& v1, const Vec& v2) {
     return !operator==(v1, v2);
   }
 
-  friend bool operator<(const Vec &v1, const Vec &v2) {
+  friend bool operator<(const Vec& v1, const Vec& v2) {
     return (v1.lengthSquared() < v2.lengthSquared());
   }
 
-  friend bool operator>(const Vec &v1, const Vec &v2) {
+  friend bool operator>(const Vec& v1, const Vec& v2) {
     return operator<(v2, v1);
   }
 
-  friend bool operator<= (const Vec &v1, const Vec &v2) {
+  friend bool operator<= (const Vec& v1, const Vec& v2) {
     return !operator>(v1, v2);
   }
 
-  friend bool operator>=(const Vec &v1, const Vec &v2) {
+  friend bool operator>=(const Vec& v1, const Vec& v2) {
     return !operator<(v1, v2);
   }
 
   //
   // Ostream operator
   //
-  friend std::ostream& operator<<(std::ostream &out, const Vec &v) {
+  friend std::ostream& operator<<(std::ostream& out, const Vec& v) {
     out << "(" << v.x << ", " << v.y << ")"; return out;
   }
 };

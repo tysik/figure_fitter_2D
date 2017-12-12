@@ -41,7 +41,7 @@ int main()
     FigureFitter fitter(point_set);
     fitter.fitPoint(fitted_point, variance);
   }
-  catch (const exception &e)
+  catch (const exception& e)
   {
     cout << e.what();
     return 1;
@@ -55,7 +55,7 @@ int main()
   //
   vector<double> x_coords;
   vector<double> y_coords;
-  for (auto &p : point_set) {
+  for (auto& p : point_set) {
     x_coords.push_back(p.x);
     y_coords.push_back(p.y);
   }

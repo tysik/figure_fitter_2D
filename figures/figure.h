@@ -10,7 +10,7 @@ class Point;
 /**
  * @class Figure figure.h
  *
- * @brief Base and interface class for all figures
+ * @brief Base and interface class for all of figures
  *
  * Provides interface for most common functionalities of figures.
  */
@@ -18,19 +18,28 @@ class Figure
 {
 public:
 
-  Figure() = delete;
+  Figure() = default;
+  virtual ~Figure() = default;
+
+  Figure(const Figure& rhs) = default;
+  Figure& operator=(const Figure& rhs) = default;
+
+  Figure(Figure&& rhs) = default;
+  Figure& operator=(Figure&& rhs) = default;
 
   /**
    * @brief Compute normal vector
    *
-   * Computes normal vector pointing from the figure towards given point. The
+   * Computes normal vector pointing from the figure towards a given point. The
    * normal vector is perpendicular to the surface of the figure.
    *
    * @param p is a given point
    *
    * @returns normal vector
+   *
+   * @throw std::logic_error if a given point lays on the figure
    */
-  virtual Vec normalTo(const Point &p) const = 0;
+  virtual Vec normalTo(const Point& p) const = 0;
 
   /**
    * @brief Compute squared distance to point
@@ -44,7 +53,7 @@ public:
    *
    * @sa distanceTo()
    */
-  virtual double distanceSquaredTo(const Point &p) const = 0;
+  virtual double distanceSquaredTo(const Point& p) const = 0;
 
   /**
    * @brief Compute distance to point
@@ -59,7 +68,7 @@ public:
    *
    * @sa distanceSquaredTo()
    */
-  virtual double distanceTo(const Point &p) const = 0;
+  virtual double distanceTo(const Point& p) const = 0;
 
   /**
    * @brief Find projection of given point onto the figure
@@ -68,7 +77,7 @@ public:
    *
    * @return point on the figure that is nearest to the given point
    */
-  virtual Point findProjectionOf(const Point &p) const = 0;
+  virtual Point findProjectionOf(const Point& p) const = 0;
 };
 
 } // end namespace figfit

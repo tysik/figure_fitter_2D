@@ -26,8 +26,17 @@ public:
   //
   // Constructors
   //
+
+  virtual ~Line() = default;
+
+  Line(const Line& rhs) = default;
+  Line& operator=(const Line& rhs) = default;
+
+  Line(Line&& rhs) = default;
+  Line& operator=(Line&& rhs) = default;
+
   /**
-   * @brief Construction from parameters
+   * @brief Construction from parameters (default)
    *
    * Constructs a line based on given general equation parameters. The
    * parameters are normalized during construction.
@@ -58,7 +67,7 @@ public:
    *
    * @throw std::logic_error if p1 = p2
    */
-  Line(const Point &p1, const Point &p2) {
+  Line(const Point& p1, const Point& p2) {
     double dx = p2.x - p1.x;
     double dy = p2.y - p1.y;
 
@@ -83,19 +92,32 @@ public:
   //
   // Inherited methods
   //
-  virtual Vec normalTo(const Point &p) const {
+
+  /**
+   * @brief Compute normal vector from this line to a given point
+   */
+  virtual Vec normalTo(const Point& p) const override {
     return normalize(p - findProjectionOf(p));
   }
 
-  virtual double distanceSquaredTo(const Point &p) const {
+  /**
+   * @brief Compute squared distance from this line to a given point
+   */
+  virtual double distanceSquaredTo(const Point& p) const override {
     return (p - findProjectionOf(p)).lengthSquared();
   }
 
-  virtual double distanceTo(const Point &p) const {
+  /**
+   * @brief Compute distance from this line to a given point
+   */
+  virtual double distanceTo(const Point& p) const override {
     return std::abs(A_ * p.x + B_ * p.y + C_);
   }
 
-  virtual Point findProjectionOf(const Point &p) const {
+  /**
+   * @brief Find projection of a given point onto this line
+   */
+  virtual Point findProjectionOf(const Point& p) const override {
     double x_coord = B_ * (B_ * p.x - A_ * p.y) - A_ * C_;
     double y_coord = A_ * (A_ * p.y - B_ * p.x) - B_ * C_;
 
@@ -105,6 +127,7 @@ public:
   //
   // Line specific methods
   //
+
   /**
    * @brief Find intersection with given line
    *
@@ -114,7 +137,7 @@ public:
    *
    * @throw std::logic_error if lines are parallel
    */
-  Point findIntersectionWith(const Line &l) const {
+  Point findIntersectionWith(const Line& l) const {
     double denominator = A_ * l.B_ - B_ * l.A_;
 
     if (denominator == 0.0)
@@ -131,7 +154,7 @@ public:
    *
    * @return true if lines are parallel
    */
-  bool isParallelTo(const Line &l) const {
+  bool isParallelTo(const Line& l) const {
     return (A_ * l.B_ - B_ * l.A_ == 0.0);
   }
 
@@ -142,7 +165,7 @@ public:
    *
    * @return true if lines are perpendicular
    */
-  bool isPerpendicularTo(const Line &l) const {
+  bool isPerpendicularTo(const Line& l) const {
     return (A_ * l.A_ + B_ * l.B_ == 0.0);
   }
 
@@ -157,7 +180,8 @@ public:
    */
   Point createPointFromX(double x_coord) const {
     if (B_ == 0.0)
-      throw std::logic_error("Cannot create point on vertical line");
+      throw std::logic_error("Cannot create point from x coordinate on a "
+                             "vertical line");
 
     return Point(x_coord, -(A_ * x_coord + C_) / B_);
   }
@@ -173,16 +197,15 @@ public:
    */
   Point createPointFromY(double y_coord) const {
     if (A_ == 0.0)
-      throw std::logic_error("Cannot create point on horizontal line");
+      throw std::logic_error("Cannot create point from y coordinate on a "
+                             "horizontal line");
 
     return Point(-(B_ * y_coord + C_) / A_, y_coord);
   }
 
-  //
-  // Getter methods
-  //
   /**
    * @brief Get A
+   *
    * @return coefficient A
    */
   double A() const {
@@ -191,6 +214,7 @@ public:
 
   /**
    * @brief Get B
+   *
    * @return coefficient B
    */
   double B() const {
@@ -199,6 +223,7 @@ public:
 
   /**
    * @brief Get C
+   *
    * @return coefficient C
    */
   double C() const {
@@ -208,7 +233,8 @@ public:
   //
   // Ostream operator
   //
-  friend std::ostream& operator<<(std::ostream &out, const Line &l) {
+
+  friend std::ostream& operator<<(std::ostream& out, const Line& l) {
     out << "(" << l.A_ << ", " << l.B_ << ", " << l.C_ << ")";
     return out;
   }

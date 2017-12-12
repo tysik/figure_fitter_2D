@@ -48,7 +48,7 @@ int main()
     cout << "Obtained segment: " << fitted_segment << endl;
     cout << "Obtained distance variance: " << variance << endl;
   }
-  catch (const exception &e) {
+  catch (const exception& e) {
     cout << e.what();
   }
 }

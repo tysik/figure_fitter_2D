@@ -20,8 +20,17 @@ public:
   //
   // Constructors
   //
+
+  virtual ~Point() = default;
+
+  Point(const Point& rhs) = default;
+  Point& operator=(const Point& rhs) = default;
+
+  Point(Point&& rhs) = default;
+  Point& operator=(Point&& rhs) = default;
+
   /**
-   * @brief Construction from coordinates
+   * @brief Construction from coordinates (default)
    *
    * @param x is abscissa coordinate
    * @param y is ordinate coordinate
@@ -32,28 +41,42 @@ public:
 
   /**
    * @brief Construction from vector
-   * @param v is vector
+   *
+   * @param v is a vector
    */
-  Point(const Vec &v) :
+  Point(const Vec& v) :
     Vec(v)
   {}
 
   //
   // Inherited methods
   //
-  virtual Vec normalTo(const Point &p) const {
+
+  /**
+   * @brief Compute normal vector from this point to a given point
+   */
+  virtual Vec normalTo(const Point& p) const override {
     return normalize(p - *this);
   }
 
-  virtual double distanceSquaredTo(const Point &p) const {
+  /**
+   * @brief Compute squared distance from this point to a given point
+   */
+  virtual double distanceSquaredTo(const Point& p) const override {
     return (p - *this).lengthSquared();
   }
 
-  virtual double distanceTo(const Point &p) const {
+  /**
+   * @brief Compute distance from this point to a given point
+   */
+  virtual double distanceTo(const Point& p) const override {
     return sqrt(distanceSquaredTo(p));
   }
 
-  virtual Point findProjectionOf(const Point &p) const {
+  /**
+   * @brief Find projection of a given point onto this point
+   */
+  virtual Point findProjectionOf(const Point& p) const override {
     return *this;
   }
 };

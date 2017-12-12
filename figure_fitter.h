@@ -43,7 +43,7 @@ public:
    *
    * \param points is the vector containing figfig::Point objects
   */
-  FigureFitter(const std::vector<Point> &points) :
+  FigureFitter(const std::vector<Point>& points) :
     N_(points.size()),
     x_coords_(points.size()),
     y_coords_(points.size())
@@ -65,7 +65,7 @@ public:
    *
    * @param p is a placeholder for the resulting point
    */
-  void fitPoint(Point &p);
+  void fitPoint(Point& p);
 
   /**
    * @brief Fit point from the point set and get variance
@@ -76,7 +76,7 @@ public:
    * @param p is a placeholder for the resulting point
    * @param variance is a placeholder for the resulting variance
    */
-  void fitPoint(Point &p, double &variance);
+  void fitPoint(Point& p, double& variance);
 
   /**
    * @brief Fit line from the point set
@@ -91,7 +91,7 @@ public:
    *
    * @param l is a placeholder for the resulting line
    */
-  void fitLine(Line &l);
+  void fitLine(Line& l);
 
   /**
    * @brief Fit line from the point set and get variance
@@ -102,7 +102,7 @@ public:
    * @param l is a placeholder for the resulting line
    * @param variance is a placeholder for the resulting variance
    */
-  void fitLine(Line &l, double &variance);
+  void fitLine(Line& l, double& variance);
 
   /**
    * @brief Fit segment from the point set
@@ -112,7 +112,7 @@ public:
    *
    * @param s is a placeholder for the resulting segment
    */
-  void fitSegment(Segment &s);
+  void fitSegment(Segment& s);
 
   /**
    * @brief Fit segment from the point set and get variance
@@ -123,7 +123,7 @@ public:
    * @param s is a placeholder for the resulting segment
    * @param variance is a placeholder for the resulting variance
    */
-  void fitSegment(Segment &s, double &variance);
+  void fitSegment(Segment& s, double& variance);
 
   /**
    * @brief Fit circle from the point set
@@ -136,7 +136,7 @@ public:
    *
    * @param c is a placeholder for the resulting circle
    */
-  void fitCircle(Circle &c);
+  void fitCircle(Circle& c);
 
   /**
    * @brief Fit circle from the point set and get variance
@@ -147,7 +147,7 @@ public:
    * @param s is a placeholder for the resulting circle
    * @param variance is a placeholder for the resulting variance
    */
-  void fitCircle(Circle &c, double &variance);
+  void fitCircle(Circle& c, double& variance);
 
   //  void fitArc(Arc &arc);
   //  void fitArc(Arc &arc, double &variance);
@@ -183,7 +183,7 @@ private:
    *
    * @return variance of sample points about figure
    */
-  double findVarianceAbout(const Figure &f) const {
+  double findVarianceAbout(const Figure& f) const {
     double var = 0.0;
     for (size_t i = 0; i < N_; ++i)
       var += f.distanceSquaredTo(Point(x_coords_(i), y_coords_(i)));
@@ -197,7 +197,7 @@ private:
 };
 
 
-void FigureFitter::fitPoint(Point &p) {
+void FigureFitter::fitPoint(Point& p) {
   if (N_ < 1)
     throw std::logic_error("Error while fitting point. There must be at least "
                            "one point in the set.");
@@ -208,12 +208,12 @@ void FigureFitter::fitPoint(Point &p) {
   p = Point(mean_x, mean_y);
 }
 
-void FigureFitter::fitPoint(Point &p, double &variance) {
+void FigureFitter::fitPoint(Point& p, double& variance) {
   fitPoint(p);
   variance = findVarianceAbout(p);
 }
 
-void FigureFitter::fitLine(Line &l) {
+void FigureFitter::fitLine(Line& l) {
   if (N_ < 2)
     throw std::logic_error("Error while fitting line. There must be at least "
                            "two points in the set.");
@@ -233,12 +233,12 @@ void FigureFitter::fitLine(Line &l) {
   l = Line(params(0), params(1), -1.0);
 }
 
-void FigureFitter::fitLine(Line &l, double &variance) {
+void FigureFitter::fitLine(Line& l, double& variance) {
   fitLine(l);
   variance = findVarianceAbout(l);
 }
 
-void FigureFitter::fitSegment(Segment &s) {
+void FigureFitter::fitSegment(Segment& s) {
   Line line;
   fitLine(line);
 
@@ -251,12 +251,12 @@ void FigureFitter::fitSegment(Segment &s) {
   s = Segment(first_point, second_point);
 }
 
-void FigureFitter::fitSegment(Segment &s, double &variance) {
+void FigureFitter::fitSegment(Segment& s, double& variance) {
   fitSegment(s);
   variance = findVarianceAbout(s);
 }
 
-void FigureFitter::fitCircle(Circle &c) {
+void FigureFitter::fitCircle(Circle& c) {
   if (N_ < 3)
     throw std::runtime_error("Error while fitting circle. There must be at "
                              "least three points in the set.");
@@ -279,7 +279,7 @@ void FigureFitter::fitCircle(Circle &c) {
   c = Circle(center, radius);
 }
 
-void FigureFitter::fitCircle(Circle &c, double &variance) {
+void FigureFitter::fitCircle(Circle& c, double& variance) {
   fitCircle(c);
   variance = findVarianceAbout(c);
 }
