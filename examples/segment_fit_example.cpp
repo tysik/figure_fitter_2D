@@ -3,17 +3,17 @@
 #include <random>
 
 #include "../figures/segment.h"
-#include "../fitters/figure_fitter.h"
+#include "../figure_fitter.h"
 
 using namespace std;
 using namespace figfit;
 
 const int N = 100;
-const double mu = 0.0;
-const double var = 0.01;
+const double mean = 0.0;
+const double std_dev = 0.01;
 
 default_random_engine random_engine;
-normal_distribution<double> distribution(mu, var);
+normal_distribution<double> distribution(mean, std_dev);
 
 auto roll = [&](){ return distribution(random_engine); };
 
@@ -37,8 +37,7 @@ int main()
     point_set.push_back(line_point + random_noise);
   }
 
-  try
-  {
+  try {
     FigureFitter fitter(point_set);
     Segment fitted_segment;
     double variance;
@@ -49,8 +48,7 @@ int main()
     cout << "Obtained segment: " << fitted_segment << endl;
     cout << "Obtained distance variance: " << variance << endl;
   }
-  catch (const exception &e)
-  {
+  catch (const exception &e) {
     cout << e.what();
   }
 }

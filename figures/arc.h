@@ -6,12 +6,14 @@ namespace figfit
 {
 
 /**
- * @class Segment segment.h
+ * @class Arc arc.h
  *
- * @brief The Segment class
+ * @brief The Arc class
  *
- * Segment is a special case of finite Line and therefore is a Figure. It is
- * defined by general equation of line (Ax + By + C = 0) and two extreme points.
+ * Arc is a special case of non-closed circle and therefore is a figure. It is
+ * defined by two points lying on the circle. Depending on the order of
+ * providing points, the arc is defined to be a section of the circle or its
+ * negation.
  */
 class Arc : public Circle
 {
@@ -21,7 +23,7 @@ public:
   // Constructors
   //
   /**
-   * @brief Construction from points
+   * @brief Construction from three points
    *
    * Note that default segment is constructed from points (0,0) and (1,0).
    *
