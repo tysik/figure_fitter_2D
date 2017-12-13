@@ -14,7 +14,9 @@ namespace figfit
  *
  * Structure containing 2D vector with x and y coordinates. It provides
  * overloads for most of arithmetic operators as well as pack of friend
- * functions for various operations on two vectors.
+ * functions for various operations on two vectors. The representation uses
+ * right-handed coordinate system, hence the angle is growing in the counter-
+ * clokwise direction.
  */
 struct Vec
 {
@@ -22,44 +24,25 @@ struct Vec
   double y;   /**< @brief ordinate coordinate */
 
   /**
-   * @brief Construction from coordinates
+   * @brief Construction from coordinates (default)
    *
    * Note that default vector with x = 0, y = 0 is correct but methods like
-   * normalized() are ill-defined.
+   * normalized() will throw exceptions due to the length = 0.
    *
-   * @param x is x coordinate
-   * @param y is y coordinate
+   * @param x is an abscissa coordinate
+   * @param y is an ordinate coordinate
    */
   Vec(double x = 0.0, double y = 0.0) :
     x(x), y(y)
   {}
 
-  /**
-   * @brief Construction from copy
-   *
-   * @param v is a rhs vector
-   */
-  Vec(const Vec& v) :
-    x(v.x), y(v.y)
-  {}
-
-  Vec(Vec&& v) = default;
+  Vec(const Vec& rhs) = default;
+  Vec(Vec&& rhs) = default;
 
   /**
-   * @brief Squared length of vector
+   * @brief Get length of this vector
    *
-   * @return squared length of the vector
-   *
-   * @sa length()
-   */
-  double lengthSquared() const {
-    return x * x + y * y;
-  }
-
-  /**
-   * @brief Length of vector
-   *
-   * @return length of the vector
+   * @return length of this vector
    *
    * @sa lengthSquared()
    */
@@ -68,12 +51,44 @@ struct Vec
   }
 
   /**
-   * @brief Angle of vector
+   * @brief Get length of a given vector
    *
-   * The angle (orientation) of the vector is calculated in its coordinate
-   * frame, where x is abscissa and y is ordinate.
+   * @param v is a given vector
    *
-   * @return orientation of the vector in radians, in range [-pi, pi]
+   * @return length of a given vector
+   */
+  friend double length(const Vec& v) {
+    return v.length();
+  }
+
+  /**
+   * @brief Get squared length of this vector
+   *
+   * Calculation of squared length is faster than calculation of length.
+   *
+   * @return squared length of this vector
+   *
+   * @sa length()
+   */
+  double lengthSquared() const {
+    return x * x + y * y;
+  }
+
+  /**
+   * @brief Get squared length of a given vector
+   *
+   * @param v is a given vector
+   *
+   * @return length of a given vector
+   */
+  friend double lengthSquared(const Vec& v) {
+    return v.length();
+  }
+
+  /**
+   * @brief Get angle of this vector
+   *
+   * @return orientation of this vector in radians, in range [-pi, pi]
    *
    * @sa angleDeg()
    */
@@ -82,9 +97,18 @@ struct Vec
   }
 
   /**
-   * @brief Angle of vector in degrees
+   * @brief Get angle of a given vector
    *
-   * @return orientation of the vector in degrees, in range [-180, 180]
+   * @return orientation of a given vector in radians, in range [-pi, pi]
+   */
+  friend double angle(const Vec& v) {
+    return v.angle();
+  }
+
+  /**
+   * @brief Get angle of this vector in degrees
+   *
+   * @return orientation of this vector in degrees, in range [-180, 180]
    *
    * @sa angle()
    */
@@ -93,125 +117,312 @@ struct Vec
   }
 
   /**
-   * @brief Dot product
+   * @brief Get angle of a given vector in degrees
    *
-   * @param v is another vector with which the dot product shall be computed
+   * @return orientation of a given vector in degrees, in range [-180, 180]
+   */
+  friend double angleDeg(const Vec& v) {
+    return v.angleDeg();
+  }
+
+  /**
+   * @brief Get dot product of this vector with a given vector
+   *
+   * @param v is a given vector
    *
    * @return dot product of this vector and vector v
+   *
+   * @sa cross()
    */
   double dot(const Vec& v) const {
     return x * v.x + y * v.y;
   }
 
   /**
-   * @brief Cross product z-coefficient
+   * @brief Get dot product of two vectors
    *
-   * In general, the cross product of two vectors generates a pseudovector.
-   * For 2D case, since the z coordinate of each vector is assumed to be zero,
-   * only the resulting z coordinate is computed.
+   * Note that dot(v1, v2) = dot(v2, v1).
    *
-   * @param v is another vector with which the cross product shall be computed
-   *
-   * @return z coordinate of cross product of this vector and vector v
-   */
-  double cross(const Vec& v) const {
-    return x * v.y - y * v.x;
-  }
-
-  /**
-   * @brief Normalized version of this vector
-   *
-   * @return vector with the same orientation as this vector but with unit
-   * length
-   *
-   * @throw std::logic_error if the length of the vector is zero
-   */
-  Vec normalized() const {
-    double length = this->length();
-    if (length == 0.0)
-      throw std::logic_error("Cannot normalize a vector of length zero.");
-
-    return *this / length;
-  }
-
-  /**
-   * @brief Friend version of dot() method
-   *
-   * Note that dot(v1, v2) == dot(v2, v1).
-   *
-   * @param v1 is first vector
-   * @param v2 is second vector
+   * @param v1 is a first vector
+   * @param v2 is a second vector
    *
    * @return dot product of two vectors
-   *
-   * @sa dot()
    */
   friend double dot(const Vec& v1, const Vec& v2) {
     return v1.dot(v2);
   }
 
   /**
-   * @brief Friend version of cross() method
+   * @brief Get z-coordinate of cross product of this vector with a given vector
    *
-   * Note that cross(v1, v2) != cross(v2, v1).
+   * In general, the cross product of two vectors generates a pseudovector.
+   * For 2D case, since the z coordinate of each vector is assumed to be zero,
+   * only the resulting z coordinate is computed.
    *
-   * @param v1 is first vector
-   * @param v2 is second vector
+   * @param v is a given vector
    *
-   * @return z coordinate of cross product of two vectors
+   * @return z-coordinate of a cross product of this vector and vector v
    *
-   * @sa cross()
+   * @sa dot()
+   */
+  double cross(const Vec& v) const {
+    return x * v.y - y * v.x;
+  }
+
+  /**
+   * @brief Get z-coordinate of cross product of two vectors
+   *
+   * Note that cross(v1, v2) = -cross(v2, v1).
+   *
+   * @param v1 is a first vector
+   * @param v2 is a second vector
+   *
+   * @return z-coordinate of cross product of two vectors
    */
   friend double cross(const Vec& v1, const Vec& v2) {
     return v1.cross(v2);
   }
 
   /**
-   * @brief Friend version of the normalized() method
+   * @brief Normalize this vector
    *
-   * Notice the names difference.
-   *
-   * @param v is a vector
-   *
-   * @return normalized version of provided vector
+   * @return reference to this vector after normalization
    *
    * @throw std::logic_error if the length of the vector is zero
-   *
-   * @sa normalized()
    */
-  friend Vec normalize(const Vec& v) {
-    double length = v.length();
+  Vec& normalize() {
+    double length = this->length();
     if (length == 0.0)
       throw std::logic_error("Cannot normalize a vector of length zero.");
 
-    return v / length;
+    x /= length;
+    y /= length;
+
+    return *this;
   }
 
   /**
-   * @brief Reflects vector against given normal vector
+   * @brief Normalize a given vector
    *
-   * Returns a vector as if it was reflected from the surface which normal
-   * vector is given by parameter. Parameter normal is assumed to be normalized,
-   * hence such check is not performed.
+   * @param v is a given vector
+   *
+   * @return reference to v after normalization
+   *
+   * @throw std::logic_error if the length of the vector is zero
+   *
+   * @sa normalize()
+   */
+  friend Vec& normalize(Vec& v) {
+    return v.normalize();
+  }
+
+  /**
+   * @brief Get normalized copy of this vector
+   *
+   * @return normalized copy of this vector
+   *
+   * @throw std::logic_error if the length of the vector is zero
+   *
+   * @sa normalize()
+   */
+  Vec normalized() const {
+    Vec v = *this;
+    return v.normalize();
+  }
+
+  /**
+   * @brief Get normalized copy of a given vector
+   *
+   * @param v is a given vector
+   *
+   * @return normalized copy of a given vector
+   *
+   * @throw std::logic_error if the length of the vector is zero
+   *
+   * @sa normalize()
+   */
+  friend Vec normalized(const Vec& v) {
+    return v.normalized();
+  }
+
+  /**
+   * @brief Rotate this vector
+   *
+   * Rotation is applied in a counter-clokwise direction.
+   *
+   * @param angle is an angle of rotation in radians
+   *
+   * @return reference to this vector after rotation
+   */
+  Vec& rotate(double angle) {
+    double x_tmp = x * cos(angle) - y * sin(angle);
+    double y_tmp = x * sin(angle) + y * cos(angle);
+
+    x = x_tmp;
+    y = y_tmp;
+
+    return *this;
+  }
+
+  /**
+   * @brief Rotate a given vector
+   *
+   * Rotation is applied in a counter-clokwise direction.
+   *
+   * @param v is a given vector
+   * @param angle is an angle of rotation in radians
+   *
+   * @return reference to v after rotation
+   *
+   * @sa rotate()
+   */
+  friend Vec& rotate(Vec& v, double angle) {
+    return v.rotate(angle);
+  }
+
+  /**
+   * @brief Get rotated copy of this vector
+   *
+   * @param angle is an angle of rotation in radians
+   *
+   * @return rotated copy of this vector
+   *
+   * @sa rotate()
+   */
+  Vec rotated(double angle) const {
+    Vec v = *this;
+    return v.rotate(angle);
+  }
+
+  /**
+   * @brief Get rotated copy of a given vector
+   *
+   * @param v is a given vector
+   * @param angle is an angle of rotation in radians
+   *
+   * @return rotated copy of v
+   *
+   * @sa rotate()
+   */
+  friend Vec rotated(const Vec& v, double angle) {
+    return v.rotated(angle);
+  }
+
+  /**
+   * @brief Rotate this vector by 90 degrees
+   *
+   * @return reference to this vector after rotation by 90 degrees in counter-
+   * clokwise direction
+   *
+   * @sa rotate()
+   */
+  Vec& rotate90() {
+    double x_tmp = -y;
+    double y_tmp = x;
+
+    x = x_tmp;
+    y = y_tmp;
+
+    return *this;
+  }
+
+  /**
+   * @brief Rotate a given vector by 90 degrees
+   *
+   * @param v is a given vector
+   *
+   * @return reference to a given vector after rotation by 90 degrees in
+   * counter-clokwise direction
+   *
+   * @sa rotate()
+   */
+  friend Vec& rotate90(Vec& v) {
+    return v.rotate90();
+  }
+
+  /**
+   * @brief Get a copy of this vector rotated by 90 deg
+   *
+   * @return a copy of this vector rotated by 90 deg
+   *
+   * @sa rotate90()
+   */
+  Vec rotated90() const {
+    Vec v = *this;
+    return v.rotate90();
+  }
+
+  /**
+   * @brief Get a copy of a given vector rotated by 90 deg
+   *
+   * @param v is a given vector
+   *
+   * @return a copy of a given vector rotated by 90 deg
+   *
+   * @sa rotate()
+   */
+  friend Vec rotated90(const Vec& v) {
+    return v.rotated90();
+  }
+
+  /**
+   * @brief Reflect this vector against a given normal vector
+   *
+   * Returns a vector as if it "bounced" from the surface which normal was given
+   * by the parameter. Parameter normal is assumed to be normalized, hence such
+   * check is not performed.
    *
    * @param normal is a normal vector
    *
-   * @return reflected vector
+   * @return reference to this vector after reflection
    */
-  Vec reflect(const Vec& normal) const {
-    return *this - 2.0 * normal * (normal.dot(*this));
+  Vec& reflect(const Vec& normal) {
+    *this = *this - 2.0 * normal * normal.dot(*this);
+    return *this;
   }
 
   /**
-   * @brief Perpendicular vector getter
+   * @brief Reflect a given vector against a given normal vector
    *
-   * Returns a vector as if it was rotated 90 deg. in counter-clokwise
-   * direction.
+   * @param v is a given vector
    *
-   * @return vector perpendicular to this
+   * @param normal is a normal vector
+   *
+   * @return reference to a given vector after reflection
+   *
+   * @sa reflect()
    */
-  Vec perpendicular() const {
-    return Vec(-y, x);
+  friend Vec& reflect(Vec& v, const Vec& normal) {
+    return v.reflect(normal);
+  }
+
+  /**
+   * @brief Get a copy of this vector reflected against a given normal vector
+   *
+   * @param normal is a given normal vector
+   *
+   * @return copy of this vector reflected against a given normal vector
+   *
+   * @sa reflect()
+   */
+  Vec reflected(const Vec& normal) const {
+    Vec v = *this;
+    return v.reflect(normal);
+  }
+
+  /**
+   * @brief Get a copy of a given vector reflected agains a given normal vector
+   *
+   * @param v is a given vector
+   *
+   * @param normal is a given normal vector
+   *
+   * @return a copy of a given vector reflected agains a given normal vector
+   *
+   * @sa reflect()
+   */
+  friend Vec reflected(const Vec& v, const Vec& normal) {
+    return v.reflected(normal);
   }
 
   //

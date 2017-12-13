@@ -89,7 +89,7 @@ public:
    * @throw std::logic_error if a point coincides with the circle center
    */
   virtual Vec normalTo(const Point& p) const override {
-    return normalize(p - findProjectionOf(p));
+    return (p - findProjectionOf(p)).normalized();
   }
 
   /**

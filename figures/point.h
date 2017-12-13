@@ -56,7 +56,7 @@ public:
    * @brief Compute normal vector from this point to a given point
    */
   virtual Vec normalTo(const Point& p) const override {
-    return normalize(p - *this);
+    return (p - *this).normalized();
   }
 
   /**
@@ -70,7 +70,7 @@ public:
    * @brief Compute distance from this point to a given point
    */
   virtual double distanceTo(const Point& p) const override {
-    return sqrt(distanceSquaredTo(p));
+    return (p - *this).length();
   }
 
   /**

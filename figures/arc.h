@@ -50,7 +50,10 @@ public:
     Circle(center, radius),
     start_(atan2(sin(start), cos(start))),
     end_(atan2(sin(stop), cos(stop)))
-  {}
+  {
+    start_point_ = center + radius_ * Point(cos(start), sin(start));
+    end_point_ = center + radius_ * Point(cos(stop), sin(stop));
+  }
 
   /**
    * @brief Construction from three points
@@ -64,7 +67,9 @@ public:
   Arc(const Point& start,
       const Point& stop,
       const Point& aux):
-    Circle(start, stop, aux)
+    Circle(start, stop, aux),
+    start_point_(start),
+    end_point_(stop)
   {
     start_ = atan2(start.y - center_.y, start.x - center_.x);
     end_ = atan2(stop.y - center_.y, stop.x - center_.x);
@@ -217,7 +222,8 @@ public:
    * @return start-point of this arc
    */
   Point startPoint() const {
-    return center_ + radius_ * Point(cos(start_), sin(start_));
+    //return center_ + radius_ * Point(cos(start_), sin(start_));
+    return start_point_;
   }
 
   /**
@@ -226,7 +232,8 @@ public:
    * @return end-point of this arc
    */
   Point endPoint() const {
-    return center_ + radius_ * Point(cos(start_), sin(start_));
+    //return center_ + radius_ * Point(cos(start_), sin(start_));
+    return end_point_;
   }
 
   /**
@@ -235,13 +242,16 @@ public:
    * @return middle-point of this arc
    */
   Point midPoint() const {
-    if (length() == 0.0)
-      return startPoint();
+    Point p1 = start_point_ - center_;
+    Point p2 = end_point_ - center_;
 
-    Point p1 = startPoint() - center_;
-    Point p2 = endPoint() - center_;
+    // If p1 = -p2 the simply return p1 rotated by 90 deg.
+    if ((p1 + p2).lengthSquared() == 0.0)
+      return center_ + Point(-p1.y, p1.x);
 
-    return center_ + radius_ * normalize(p1 + p2);
+    double sign = (p1.cross(p2) >= 0.0 ? 1.0 : -1.0);
+
+    return center_ + sign * radius_ * (p1 + p2).normalized();
   }
 
   //
@@ -257,6 +267,8 @@ public:
 private:
 
   // TODO: find out if the point-representation is better
+  Point start_point_;
+  Point end_point_;
 
   double start_;   /**< @brief Start-point angle */
   double end_;     /**< @brief End-point angle */

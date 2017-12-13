@@ -97,7 +97,7 @@ public:
    * @brief Compute normal vector from this line to a given point
    */
   virtual Vec normalTo(const Point& p) const override {
-    return normalize(p - findProjectionOf(p));
+    return (p - findProjectionOf(p)).normalized();
   }
 
   /**
