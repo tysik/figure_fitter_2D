@@ -167,21 +167,45 @@ public:
   }
 
   /**
-   * @brief Get first point
+   * @brief Get a start point of this segment
    *
-   * @return first point
+   * @return a start point of this segment
    */
   Point startPoint() const {
     return start_point_;
   }
 
   /**
-   * @brief Get second point
+   * @brief Get an end point of this segment
    *
-   * @return second point
+   * @return an end point of this segment
    */
   Point endPoint() const {
     return end_point_;
+  }
+
+  /**
+   * @brief Get a middle point of this segment
+   *
+   * @return a middle point of this segment
+   */
+  Point midPoint() const {
+    return (start_point_ + end_point_) / 2.0;
+  }
+
+  /**
+   * @brief Create a point based on parameter t
+   *
+   * When parameter t goes from 0 to 1, then returned points are in [start
+   * point; stop point]. Parameter t can be less than zero or greater than one.
+   * In such case the created point falls behind the limits of this segment.
+   *
+   * @param t is a parameter
+   *
+   * @return point created from parametric representation
+   */
+  Point createPointFromParam(double t) const {
+    return start_point_ + t * (end_point_ - start_point_);
   }
 
   //

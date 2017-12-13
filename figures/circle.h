@@ -147,10 +147,6 @@ public:
     return radius_ >= (c.center_ - center_).length() + c.radius_;
   }
 
-  //
-  // Getter methods
-  //
-
   /**
    * @brief Get center
    *
@@ -167,6 +163,19 @@ public:
    */
   double radius() const {
     return radius_;
+  }
+
+  /**
+   * @brief Create a point on this circle based on angle theta
+   *
+   * Angle theta represents the direction from the center of this circle.
+   *
+   * @param theta is an angle in radians
+   *
+   * @return point created on the circle
+   */
+  Point createPointFromAngle(double theta) const {
+    return center_ + radius_ * Vec(cos(theta), sin(theta));
   }
 
   //

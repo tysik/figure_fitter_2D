@@ -59,7 +59,7 @@ public:
   /**
    * @brief Construction from two points
    *
-   * Constructs a line based on given two points lying on the line. Obtained
+   * Constructs a line based on given two points laying on the line. Obtained
    * parameters of general equation are normalized.
    *
    * @param p1 is first point

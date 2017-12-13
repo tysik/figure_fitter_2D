@@ -20,55 +20,53 @@ normal_distribution<double> distribution(mean, std_dev);
 
 auto roll = [&](){ return distribution(random_engine); };
 
-int main()
-{
-  Point original_point(2.5, -1.3);
+int main() {
+  Point true_point(2.5, -1.3);
 
-  cout << "Preparing random point set around original point: " <<
-          original_point << endl;
+  vector<Point> noisy_point_set;
 
-  vector<Point> point_set;
   for (size_t i = 0; i < N; ++i) {
-    Point random_noise(roll(), roll());
-    point_set.push_back(original_point + random_noise);
+    Vec random_noise(roll(), roll());
+
+    noisy_point_set.push_back(true_point + random_noise);
   }
 
-  cout << "Fitting point from " << N << " samples" << endl;
   Point fitted_point;
   double variance;
-  try
-  {
-    FigureFitter fitter(point_set);
+  try {
+    FigureFitter fitter(noisy_point_set);
     fitter.fitPoint(fitted_point, variance);
   }
-  catch (const exception& e)
-  {
+  catch (const exception& e) {
     cout << e.what();
     return 1;
   }
 
-  cout << "Obtained point: " << fitted_point << endl;
-  cout << "Obtained distance variance: " << variance << endl;
+  cout << "Results of point fitting" << endl;
+  cout << "Number of samples: " << N << endl;
+  cout << "Original point: " << true_point << endl;
+  cout << "Fitted point: " << fitted_point << endl;
+  cout << "Distance variance: " << variance << endl;
 
   //
   // Plot
   //
-  vector<double> x_coords;
-  vector<double> y_coords;
-  for (auto& p : point_set) {
-    x_coords.push_back(p.x);
-    y_coords.push_back(p.y);
+  vector<double> noisy_x_coords;
+  vector<double> noisy_y_coords;
+  for (auto& p : noisy_point_set) {
+    noisy_x_coords.push_back(p.x);
+    noisy_y_coords.push_back(p.y);
   }
 
   plt::title("Point fitting");
   plt::xlabel("X coordinate");
   plt::ylabel("Y coordinate");
-  plt::named_plot("Sample points", x_coords, y_coords, "kx");
-  plt::named_plot("Original point", {original_point.x}, {original_point.y}, "go");
+  plt::named_plot("Sample points", noisy_x_coords, noisy_y_coords, "kx");
+  plt::named_plot("True point", {true_point.x}, {true_point.y}, "go");
   plt::named_plot("Fitted point", {fitted_point.x}, {fitted_point.y}, "ro");
   plt::legend();
   plt::grid(true);
-  plt::xlim(original_point.x - 3.0 * std_dev, original_point.x + 3.0 * std_dev);
-  plt::ylim(original_point.y - 3.0 * std_dev, original_point.y + 3.0 * std_dev);
+  plt::xlim(true_point.x - 3.0 * std_dev, true_point.x + 3.0 * std_dev);
+  plt::ylim(true_point.y - 3.0 * std_dev, true_point.y + 3.0 * std_dev);
   plt::show();
 }

@@ -254,6 +254,14 @@ void FigureFitter::fitSegment(Segment& s) {
 void FigureFitter::fitSegment(Segment& s, double& variance) {
   fitSegment(s);
   variance = findVarianceAbout(s);
+
+//  // TODO: Experiment with that
+//  if (sqrt(variance) < 0.5 * s.length()) {
+//    Point new_start_point = s.createPointFromParam(sqrt(variance) / s.length());
+//    Point new_end_point = s.createPointFromParam(1.0 - sqrt(variance) / s.length());
+
+//    s = Segment(new_start_point, new_end_point);
+//  }
 }
 
 void FigureFitter::fitCircle(Circle& c) {
