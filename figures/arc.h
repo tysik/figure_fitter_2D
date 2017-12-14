@@ -82,21 +82,21 @@ public:
   /**
    * @brief Compute normal vector from this arc to a given point
    */
-  virtual Vec normalTo(const Point &p) const {
+  virtual Vec normalTo(const Point &p) const override {
     return Circle::normalTo(p);
   }
 
   /**
    * @brief Compute squared distance from this circle to a given point
    */
-  virtual double distanceSquaredTo(const Point &p) const {
+  virtual double distanceSquaredTo(const Point &p) const override {
     return Circle::distanceSquaredTo(p);
   }
 
   /**
    * @brief Compute distance from this circle to a given point
    */
-  virtual double distanceTo(const Point &p) const {
+  virtual double distanceTo(const Point &p) const override {
     return Circle::distanceTo(p);
   }
 
@@ -105,8 +105,37 @@ public:
    *
    * @throw std::logic_error if a point coincides with the circle center
    */
-  virtual Point findProjectionOf(const Point &p) const {
-    return Circle::findProjectionOf(p);
+  virtual Point findProjectionOf(const Point &p) const override {
+    Vec v_m = this->midPoint() - center_;
+    Vec v1 = start_point_ - center_;
+    Vec v2 = end_point_ - center_;
+    Vec v = p - center_;
+
+    double s_m = v_m.cross(v);
+    double s1 = v1.cross(v);
+    double s2 = v2.cross(v);
+    double s = v1.cross(v2);
+
+    if (s >= 0.0) {
+      // Arc is less than half of circle perimeter
+      if (s1 > 0.0 && s2 < 0.0)
+        return Circle::findProjectionOf(p);
+      else if (s_m <= 0.0)
+        return start_point_;
+      else
+        return end_point_;
+    }
+    else {
+      // Arc is more than half of circle perimeter
+      if (s1 > 0.0 || s2 < 0.0)
+        return Circle::findProjectionOf(p);
+      else if (s_m >= 0.0)
+        start_point_;
+      else
+        end_point_;
+    }
+
+    return p;
   }
 
   // Hide these methods inherited from circle:
@@ -242,16 +271,16 @@ public:
    * @return middle-point of this arc
    */
   Point midPoint() const {
-    Point p1 = start_point_ - center_;
-    Point p2 = end_point_ - center_;
+    Vec v1 = start_point_ - center_;
+    Vec v2 = end_point_ - center_;
 
-    // If p1 = -p2 the simply return p1 rotated by 90 deg.
-    if ((p1 + p2).lengthSquared() == 0.0)
-      return center_ + Point(-p1.y, p1.x);
+    // If v1 = -v2 the simply return p1 on circle rotated by 90 deg.
+    if ((v1 + v2).lengthSquared() == 0.0)
+      return center_ + v2.rotate90();
 
-    double sign = (p1.cross(p2) >= 0.0 ? 1.0 : -1.0);
+    double sign = v1.cross(v2) >= 0.0 ? 1.0 : -1.0;
 
-    return center_ + sign * radius_ * (p1 + p2).normalized();
+    return center_ + sign * radius_ * (v1 + v2).normalized();
   }
 
   //
